@@ -23,7 +23,7 @@ export class CtClientService {
       credentials: {
         clientId: process.env.CTP_CLIENT_ID,
         clientSecret: process.env.CTP_CLIENT_SECRET,
-      },
+      },  
       scopes: [process.env.CTP_SCOPES],
       fetch,
     };

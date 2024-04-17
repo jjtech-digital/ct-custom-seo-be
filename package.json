@@ -20,8 +20,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@commercetools/history-sdk": "^4.3.0",
     "@commercetools/importapi-sdk": "^5.3.0",
     "@commercetools/platform-sdk": "^7.7.0",
+    "@commercetools/sdk-client-v2": "^2.4.1",
     "@commercetools/ts-client": "^1.2.0",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/common": "^10.0.0",
@@ -33,7 +35,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "nest-winston": "^1.9.4",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.6.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "winston": "^3.13.0"
@@ -45,6 +47,7 @@
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
+    "@types/node-fetch": "^2.6.11",
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
