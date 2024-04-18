@@ -13,19 +13,28 @@ export class ProductService {
       ctClientService.ctpClient,
     );
   }
-  async productDetails(): Promise<Response> {
+  async productDetails(limit: number, offset: number): Promise<Response> {
+    const totalProduct = (await this.apiRoot.products().get().execute()).body
+      .total;
+    console.log('limit', limit);
+    console.log('offset', offset);
+    const promise = [];
     try {
-      const promise = [];
       promise.push(
         this.apiRoot
           .graphql()
           .post({
             body: {
               query: getProducts(),
+              variables: {
+                limit: limit,
+                offset: offset,
+              },
             },
           })
           .execute(),
       );
+
       const response = await Promise.all(promise);
       const products: Product[] = [];
       response.map((res: any) => {
@@ -34,9 +43,10 @@ export class ProductService {
       return {
         status: 200,
         message: 'The query has been executed successfully',
-        data: products
+        data: products,
       };
     } catch (error) {
+      console.log(error);
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
   }
