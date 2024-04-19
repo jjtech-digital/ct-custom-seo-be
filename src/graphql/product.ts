@@ -1,7 +1,8 @@
 export const getProducts = (): string => {
-  return`query{
-    products{
+  return`query($limit: Int, $offset: Int){
+    products(limit: $limit, offset: $offset){
       total
+      offset
       results{
         id
         key
@@ -12,7 +13,7 @@ export const getProducts = (): string => {
               locale
               value
             }
-            
+            description(locale: "en")
           }
         }
         
