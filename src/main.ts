@@ -30,6 +30,12 @@ async function bootstrap() {
     res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
     next();
   });
+
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: '*',
+  });
+
   await app.listen(PORT);
   console.log(`Started server listeing on : ${await app.getUrl()}`);
 }
