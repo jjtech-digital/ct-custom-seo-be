@@ -4,7 +4,7 @@ import { ApiRoot } from '../interfaces/ct.interface';
 import { getProducts } from '../graphql/product';
 import { Product } from '@commercetools/platform-sdk';
 import { Response } from 'src/interfaces/ct.interface';
-
+import OpenAI from 'openai';
 @Injectable()
 export class ProductService {
   apiRoot: ApiRoot;
@@ -56,5 +56,33 @@ export class ProductService {
       console.log(error?.body?.errors);
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
+  }
+  async generateMetaData(query: string): Promise<Response> {
+    const data = await this.queryOpenAi(query);
+    return {
+      status: 200,
+      message: 'The query has been executed successfully',
+      data,
+    };
+  }
+  async queryOpenAi(query: string): Promise<any> {
+    const openAi = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    const response = await openAi.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
+      temperature: 0.5,
+      max_tokens: 3500,
+      top_p: 1.0,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+      messages: [
+        {
+          role: 'user',
+          content: `Generate seo Title and seo Description for product ${query}`,
+        },
+      ],
+    });
+    return response;
   }
 }
