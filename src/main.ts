@@ -16,9 +16,9 @@ async function bootstrap() {
   //   methods: 'GET, POST, PUT, DELETE',
   //   allowedHeaders: 'Content-Type, Authorization',
   // });
-  app.enableCors({
-    origin: true
-  })
+  // app.enableCors({
+  //   origin: true
+  // })
 
   // app.use((req, res, next) => {
   //   res.header('Access-Control-Allow-Origin', '*');
@@ -32,7 +32,10 @@ async function bootstrap() {
   //   origin: '*',
   //   credentials: true
   // });
-
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: '*',
+  });
   await app.listen(PORT);
   console.log(`Started server listening on : ${await app.getUrl()}`);
 }
