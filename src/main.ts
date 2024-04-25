@@ -11,11 +11,11 @@ async function bootstrap() {
   const PORT = process.env.PORT || 3002;
 
   // cors setup
-  app.enableCors({
-    origin: '*',
-    methods: 'GET, POST, PUT, DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
-  });
+  // app.enableCors({
+  //   origin: '*',
+  //   methods: 'GET, POST, PUT, DELETE',
+  //   allowedHeaders: 'Content-Type, Authorization',
+  // });
   // app.enableCors();
 
   // app.use((req, res, next) => {
@@ -24,6 +24,12 @@ async function bootstrap() {
   //   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   //   next();
   // });
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+    next();
+  });
   await app.listen(PORT);
   console.log(`Started server listeing on : ${await app.getUrl()}`);
 }
