@@ -16,7 +16,7 @@ async function bootstrap() {
   //   methods: 'GET, POST, PUT, DELETE',
   //   allowedHeaders: 'Content-Type, Authorization',
   // });
-  app.enableCors();
+  app.enableCors({credentials: true});
 
   // app.use((req, res, next) => {
   //   res.header('Access-Control-Allow-Origin', '*');
