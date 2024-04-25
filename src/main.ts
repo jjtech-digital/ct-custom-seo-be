@@ -11,7 +11,11 @@ async function bootstrap() {
   const PORT = process.env.PORT || 3002;
   
   // cors setup
-  app.enableCors()
+  app.enableCors({
+    origin: ['http://localhost:3002', 'https://ct-custom-seo-be.vercel.app/**'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+  })
   await app.listen(PORT);
   console.log(`Started server listeing on : ${await app.getUrl()}`);
 }
