@@ -12,12 +12,7 @@ async function bootstrap() {
 
   // cors setup
   app.enableCors({
-    origin: [
-      'http://localhost:3001',
-      'http://localhost:3002',
-      'http://mc.australia-southeast1.gcp.commercetools.com',
-      'https://mc.australia-southeast1.gcp.commercetools.com',
-    ],
+    origin: '*',
     methods: 'GET, POST, PUT, DELETE',
     allowedHeaders: 'Content-Type, Authorization',
   });
