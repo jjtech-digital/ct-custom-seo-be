@@ -12,7 +12,7 @@ async function bootstrap() {
   
   // cors setup
   app.enableCors({
-    origin: ['http://localhost:3002', 'https://ct-custom-seo-be.vercel.app/**'],
+    origin: ['http://localhost:3002', 'https://ct-custom-seo-be.vercel.app/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
     allowedHeaders: ['Content-Type', 'Authorization'], 
   })
