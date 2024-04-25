@@ -24,12 +24,6 @@ async function bootstrap() {
   //   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   //   next();
   // });
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
-    next();
-  });
 
   app.enableCors({
     allowedHeaders: '*',
@@ -38,6 +32,6 @@ async function bootstrap() {
   });
 
   await app.listen(PORT);
-  console.log(`Started server listeing on : ${await app.getUrl()}`);
+  console.log(`Started server listening on : ${await app.getUrl()}`);
 }
 bootstrap();
