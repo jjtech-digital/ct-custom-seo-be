@@ -11,9 +11,7 @@ async function bootstrap() {
   const PORT = process.env.PORT || 3002;
   
   // cors setup
-  app.enableCors({
-    allowedHeaders: ['Content-Type', 'Authorization'], 
-  })
+  app.enableCors()
   await app.listen(PORT);
   console.log(`Started server listeing on : ${await app.getUrl()}`);
 }
