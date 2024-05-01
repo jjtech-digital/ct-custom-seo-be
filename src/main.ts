@@ -9,29 +9,7 @@ async function bootstrap() {
   config({ path: resolve(__dirname, '../.env') });
   // port
   const PORT = process.env.PORT || 3002;
-
   // cors setup
-  // app.enableCors({
-  //   origin: '*',
-  //   methods: 'GET, POST, PUT, DELETE',
-  //   allowedHeaders: 'Content-Type, Authorization',
-  // });
-  // app.enableCors({
-  //   origin: true
-  // })
-
-  // app.use((req, res, next) => {
-  //   res.header('Access-Control-Allow-Origin', '*');
-  //   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  //   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  //   next();
-  // });
-
-  // app.enableCors({
-  //   allowedHeaders: '*',
-  //   origin: '*',
-  //   credentials: true
-  // });
   app.enableCors({
     allowedHeaders: '*',
     origin: '*',
