@@ -87,7 +87,7 @@ export class ProductService {
       messages: [
         {
           role: 'user',
-          content: `Find the SEO title and description for product with attribute ${query} and ${updatedPrompt}`,
+          content: `Find the SEO title and description for product with attribute ${query} and ${updatedPrompt} also without any unnecessary special characters at the beginning and end of the text.`,
         },
       ],
     });
