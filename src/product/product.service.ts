@@ -5,10 +5,15 @@ import { getProducts } from '../graphql/product';
 import { Product } from '@commercetools/platform-sdk';
 import { Response } from 'src/interfaces/ct.interface';
 import OpenAI from 'openai';
+import axios from 'axios';
+import { RuleService } from 'src/rule/rule.service';
 @Injectable()
 export class ProductService {
   apiRoot: ApiRoot;
-  constructor(private ctClientService: CtClientService) {
+  constructor(
+    private ctClientService: CtClientService,
+    private ruleService: RuleService,
+  ) {
     this.apiRoot = this.ctClientService.createApiClient(
       ctClientService.ctpClient,
     );
@@ -69,6 +74,9 @@ export class ProductService {
     const openAi = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+    const prompt = await this.getSavedPrompt();
+    const updatedPrompt = prompt.value.join(', ');
+
     const response = await openAi.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       temperature: 0.5,
@@ -79,10 +87,28 @@ export class ProductService {
       messages: [
         {
           role: 'user',
-          content: `Generate seo Title and seo Description for product ${query}`,
+          content: `Find the SEO title and description for product with attribute ${query} and ${updatedPrompt}`,
         },
       ],
     });
     return response;
+  }
+  async getSavedPrompt() {
+    try {
+      const accessToken = await this.ruleService.getToken();
+      const baseUrl = `${process.env.CTP_API_URL}/${process.env.CTP_PROJECT_KEY}/custom-objects/${process.env.CTP_CUSTOM_OBJ_CONTAINER_NAME}/${process.env.CTP_CUSTOM_OBJ_CONTAINER_KEY}`;
+      const response = await axios.get(baseUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        'Error fetching saved prompt:',
+        error.response ? error.response.data : error.message,
+      );
+      throw new Error('Failed to fetch saved prompt');
+    }
   }
 }
