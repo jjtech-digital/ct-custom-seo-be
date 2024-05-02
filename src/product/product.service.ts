@@ -7,20 +7,29 @@ import { Response } from 'src/interfaces/ct.interface';
 import OpenAI from 'openai';
 import axios from 'axios';
 import { RuleService } from 'src/rule/rule.service';
+import { getProductDetails } from 'src/graphql/productDetails';
+
 @Injectable()
 export class ProductService {
-  apiRoot: ApiRoot;
+  private apiRoot: ApiRoot;
+
   constructor(
-    private ctClientService: CtClientService,
-    private ruleService: RuleService,
+    private readonly ctClientService: CtClientService,
+    private readonly ruleService: RuleService,
   ) {
     this.apiRoot = this.ctClientService.createApiClient(
       ctClientService.ctpClient,
     );
   }
+
+  /**
+   * Fetches product details within a specific limit and offset range.
+   * @param limit Number of products to fetch.
+   * @param offset Offset to start fetching products from.
+   * @returns Response with product details.
+   */
   async productDetails(limit: number, offset: number): Promise<Response> {
-    const totalProduct = (await this.apiRoot.products().get().execute()).body
-      .total;
+    const totalProduct = (await this.apiRoot.products().get().execute()).body.total;
 
     const promise = [];
     if (offset < 0 || offset >= totalProduct) {
@@ -51,29 +60,72 @@ export class ProductService {
 
       return {
         status: 200,
-        message: 'The query has been executed successfully',
+        message: 'Query executed successfully',
         data: products,
         total: totalProduct,
         limit: limit,
         offset: offset,
       };
     } catch (error) {
-      console.log(error?.body?.errors);
-      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+      console.error('Error fetching product details:', error?.body?.errors || error.message);
+      throw new HttpException('Error fetching product details', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  /**
+   * Fetches a specific product by its ID.
+   * @param id Product ID.
+   * @returns Response with product details.
+   */
+  async getProductById(id: string): Promise<Response> {
+    try {
+      const body = {
+        query: getProductDetails(),
+        variables: {
+          id,
+        },
+      };
+
+      const response = await this.apiRoot.graphql().post({ body }).execute();
+
+      const product = response.body.data.product;
+
+      if (!product) {
+        throw new HttpException(`Product with ID ${id} not found.`, HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        status: 200,
+        message: 'Product found successfully',
+        data: product,
+      };
+    } catch (error) {
+      console.error('Error retrieving product by ID:', error);
+      throw new HttpException('Failed to retrieve product details', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Generates metadata based on a query using OpenAI.
+   * @param query Query to generate metadata.
+   * @returns Response with generated metadata.
+   */
   async generateMetaData(query: string): Promise<Response> {
     const data = await this.queryOpenAi(query);
     return {
       status: 200,
-      message: 'The query has been executed successfully',
+      message: 'Query executed successfully',
       data,
     };
   }
+
+  /**
+   * Queries OpenAI and returns the response.
+   * @param query Query to be sent to OpenAI.
+   * @returns OpenAI response data.
+   */
   async queryOpenAi(query: string): Promise<any> {
-    const openAi = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const prompt = await this.getSavedPrompt();
     const updatedPrompt = prompt.value.join(', ');
 
@@ -87,12 +139,18 @@ export class ProductService {
       messages: [
         {
           role: 'user',
-          content: `Find the SEO title and description for product with attribute ${query} and ${updatedPrompt} also without any unnecessary special characters at the beginning and end of the text.`,
+          content: `Find the SEO title and description for product with attribute ${query} and ${updatedPrompt}, without any unnecessary special characters at the beginning and end of the text.`,
         },
       ],
     });
+
     return response;
   }
+
+  /**
+   * Fetches the saved prompt.
+   * @returns Saved prompt from the data source.
+   */
   async getSavedPrompt() {
     try {
       const accessToken = await this.ruleService.getToken();
@@ -102,12 +160,10 @@ export class ProductService {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+
       return response.data;
     } catch (error) {
-      console.error(
-        'Error fetching saved prompt:',
-        error.response ? error.response.data : error.message,
-      );
+      console.error('Error fetching saved prompt:', error?.response?.data || error.message);
       throw new Error('Failed to fetch saved prompt');
     }
   }
