@@ -58,39 +58,39 @@ export class ProductService {
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
   }
-  async getProductById(id: string): Promise<Response> {
-    try {
-      const body = {
-        query: getProductDetails(),
-        variables: {
-          id,
-        },
-      };
+  // async getProductById(id: string): Promise<Response> {
+  //   try {
+  //     const body = {
+  //       query: getProductDetails(),
+  //       variables: {
+  //         id,
+  //       },
+  //     };
 
-      const response = await this.apiRoot.graphql().post({ body }).execute();
+  //     const response = await this.apiRoot.graphql().post({ body }).execute();
 
-      const product = response.body.data.product;
+  //     const product = response.body.data.product;
 
-      if (!product) {
-        throw new HttpException(
-          `Product with ID ${id} not found.`,
-          HttpStatus.NOT_FOUND,
-        );
-      }
+  //     if (!product) {
+  //       throw new HttpException(
+  //         `Product with ID ${id} not found.`,
+  //         HttpStatus.NOT_FOUND,
+  //       );
+  //     }
 
-      return {
-        status: 200,
-        message: 'Product found successfully',
-        data: product,
-      };
-    } catch (error) {
-      console.error('Error retrieving product by ID:', error);
-      throw new HttpException(
-        'Failed to retrieve product details',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  //     return {
+  //       status: 200,
+  //       message: 'Product found successfully',
+  //       data: product,
+  //     };
+  //   } catch (error) {
+  //     console.error('Error retrieving product by ID:', error);
+  //     throw new HttpException(
+  //       'Failed to retrieve product details',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
   async generateMetaData(query: string): Promise<Response> {
     const data = await this.queryOpenAi(query);
     return {
