@@ -3,11 +3,11 @@ import { CtClientService } from '../ct/ct.services';
 import { ApiRoot } from '../interfaces/ct.interface';
 import { getProducts } from '../graphql/product';
 import { Product } from '@commercetools/platform-sdk';
-import { Response } from 'src/interfaces/ct.interface';
+import { Response } from '../interfaces/ct.interface';
 import OpenAI from 'openai';
 import axios from 'axios';
-import { RuleService } from 'src/rule/rule.service';
-import { getProductDetails } from 'src/graphql/productDetails';
+import { RuleService } from '../rule/rule.service';
+import { getProductDetails } from '../graphql/productDetails';
 @Injectable()
 export class ProductService {
   apiRoot: ApiRoot;
@@ -20,7 +20,8 @@ export class ProductService {
     );
   }
   async productDetails(limit: number, offset: number): Promise<Response> {
-    const totalProduct = (await this.apiRoot.products().get().execute()).body.total;
+    const totalProduct = (await this.apiRoot.products().get().execute()).body
+      .total;
     const promise = [];
     if (offset < 0 || offset >= totalProduct) {
       throw new HttpException('Invalid offset value', HttpStatus.BAD_REQUEST);
@@ -58,39 +59,42 @@ export class ProductService {
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
   }
-  // async getProductById(id: string): Promise<Response> {
-  //   try {
-  //     const body = {
-  //       query: getProductDetails(),
-  //       variables: {
-  //         id,
-  //       },
-  //     };
+  async getProductById(id: string): Promise<Response> {
+    try {
+      const response = await this.apiRoot
+        .graphql()
+        .post({
+          body: {
+            query: getProductDetails(),
+            variables: {
+              id,
+            },
+          },
+        })
+        .execute();
 
-  //     const response = await this.apiRoot.graphql().post({ body }).execute();
+      const product = response.body.data.product;
 
-  //     const product = response.body.data.product;
+      if (!product) {
+        throw new HttpException(
+          `Product with ID ${id} not found.`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
 
-  //     if (!product) {
-  //       throw new HttpException(
-  //         `Product with ID ${id} not found.`,
-  //         HttpStatus.NOT_FOUND,
-  //       );
-  //     }
-
-  //     return {
-  //       status: 200,
-  //       message: 'Product found successfully',
-  //       data: product,
-  //     };
-  //   } catch (error) {
-  //     console.error('Error retrieving product by ID:', error);
-  //     throw new HttpException(
-  //       'Failed to retrieve product details',
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
+      return {
+        status: 200,
+        message: 'Product found successfully',
+        data: product,
+      };
+    } catch (error) {
+      console.error('Error retrieving product by ID:', error);
+      throw new HttpException(
+        'Failed to retrieve product details',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   async generateMetaData(query: string): Promise<Response> {
     const data = await this.queryOpenAi(query);
     return {
@@ -130,7 +134,10 @@ export class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching saved prompt:', error?.response?.data || error?.message);
+      console.error(
+        'Error fetching saved prompt:',
+        error?.response?.data || error?.message,
+      );
       throw new Error('Failed to fetch saved prompt');
     }
   }
