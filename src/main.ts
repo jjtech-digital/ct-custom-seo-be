@@ -12,7 +12,12 @@ async function bootstrap() {
   // cors setup
   app.enableCors({
     allowedHeaders: '*',
-    origin: ['http://localhost:3001','https://mc.australia-southeast1.gcp.commercetools.com/ct-assessment/custom-seo'],
+    origin: [
+      'http://localhost:3001',
+      'https://mc.australia-southeast1.gcp.commercetools.com',
+      'https://mc.australia-southeast1.gcp.commercetools.com/ct-assessment',
+      'https://mc.australia-southeast1.gcp.commercetools.com/ct-assessment/custom-seo',
+    ],
   });
   await app.listen(PORT);
   console.log(`Started server listening on : ${await app.getUrl()}`);
