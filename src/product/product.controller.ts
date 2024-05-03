@@ -17,10 +17,7 @@ export class ProductController {
 
   @Get('')
   @HttpCode(201)
-  async getAllProductDetails(
-    @Query('limit') limit: number,
-    @Query('offset') offset: number,
-  ): Promise<Response> {
+  async getAllProductDetails(@Query('limit') limit: number, @Query('offset') offset: number): Promise<Response> {
     return await this.productService.productDetails(limit, offset);
   }
   @Get(':id')
@@ -31,7 +28,7 @@ export class ProductController {
   @Post('/generate-meta-data')
   @HttpCode(200)
   async getMetaData(@Body() body: QueryMetaDataDto): Promise<Response> {
-    const { query } = body;
+    const { query } = body; 
     return await this.productService.generateMetaData(query);
   }
 }
