@@ -14,22 +14,17 @@ export class ProductService {
   private apiRoot: ApiRoot;
 
   constructor(
-    private readonly ctClientService: CtClientService,
-    private readonly ruleService: RuleService,
+    private  ctClientService: CtClientService,
+    private  ruleService: RuleService,
   ) {
     this.apiRoot = this.ctClientService.createApiClient(
       ctClientService.ctpClient,
     );
   }
 
-  /**
-   * Fetches product details within a specific limit and offset range.
-   * @param limit Number of products to fetch.
-   * @param offset Offset to start fetching products from.
-   * @returns Response with product details.
-   */
   async productDetails(limit: number, offset: number): Promise<Response> {
-    const totalProduct = (await this.apiRoot.products().get().execute()).body.total;
+    const totalProduct = (await this.apiRoot.products().get().execute()).body
+      .total;
 
     const promise = [];
     if (offset < 0 || offset >= totalProduct) {
@@ -67,16 +62,17 @@ export class ProductService {
         offset: offset,
       };
     } catch (error) {
-      console.error('Error fetching product details:', error?.body?.errors || error.message);
-      throw new HttpException('Error fetching product details', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error(
+        'Error fetching product details:',
+        error?.body?.errors || error.message,
+      );
+      throw new HttpException(
+        'Error fetching product details',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  /**
-   * Fetches a specific product by its ID.
-   * @param id Product ID.
-   * @returns Response with product details.
-   */
   async getProductById(id: string): Promise<Response> {
     try {
       const body = {
@@ -91,7 +87,10 @@ export class ProductService {
       const product = response.body.data.product;
 
       if (!product) {
-        throw new HttpException(`Product with ID ${id} not found.`, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `Product with ID ${id} not found.`,
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       return {
@@ -101,33 +100,35 @@ export class ProductService {
       };
     } catch (error) {
       console.error('Error retrieving product by ID:', error);
-      throw new HttpException('Failed to retrieve product details', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to retrieve product details',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  /**
-   * Generates metadata based on a query using OpenAI.
-   * @param query Query to generate metadata.
-   * @returns Response with generated metadata.
-   */
-  async generateMetaData(query: string): Promise<Response> {
-    const data = await this.queryOpenAi(query);
-    return {
-      status: 200,
-      message: 'Query executed successfully',
-      data,
-    };
+  async generateMetaData(productId: string): Promise<Response> {
+    try {
+      const data = await this.queryOpenAi(productId);
+
+      return {
+        status: 200,
+        message: 'Query executed successfully',
+        data,
+      };
+    } catch (error) {
+      console.error('Error generating metadata:', error);
+      throw new HttpException(
+        'Failed to generate metadata',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  /**
-   * Queries OpenAI and returns the response.
-   * @param query Query to be sent to OpenAI.
-   * @returns OpenAI response data.
-   */
   async queryOpenAi(query: string): Promise<any> {
     const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const prompt = await this.getSavedPrompt();
-    const updatedPrompt = prompt.value.join(', ');
+    const updatedPrompt = prompt.value.join(' ');
 
     const response = await openAi.chat.completions.create({
       model: 'gpt-4-turbo-preview',
@@ -147,10 +148,6 @@ export class ProductService {
     return response;
   }
 
-  /**
-   * Fetches the saved prompt.
-   * @returns Saved prompt from the data source.
-   */
   async getSavedPrompt() {
     try {
       const accessToken = await this.ruleService.getToken();
@@ -163,7 +160,10 @@ export class ProductService {
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching saved prompt:', error?.response?.data || error.message);
+      console.error(
+        'Error fetching saved prompt:',
+        error?.response?.data || error.message,
+      );
       throw new Error('Failed to fetch saved prompt');
     }
   }

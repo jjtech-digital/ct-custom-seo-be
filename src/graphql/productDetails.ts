@@ -1,30 +1,21 @@
 export const getProductDetails = (): string => {
   return `
-    query ($id: String) {
-      product(id: $id) {
-        productType {
-          key
-          name
-          description
-        }
-        masterData {
-          current {
+  query ($id: String) {
+    product(id: $id) {
+      masterData {
+        current {
+          masterVariant {
+            id
+          }
+          name(locale: "en")
+          categories {
             name(locale: "en")
-            nameAllLocales {
-              locale
-              value
-            }
             slug(locale: "en")
-            searchKeyword(locale: "en") {
-              text
-            }
-            searchKeywords {
-              locale
-            }
-            metaTitle(locale: "en")
           }
         }
       }
+      skus
     }
+  }
     `;
 };
