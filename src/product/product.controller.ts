@@ -23,7 +23,7 @@ export class ProductController {
   @Post('/generate-meta-data')
   @HttpCode(200)
   async getMetaData(@Body() body: QueryMetaDataDto): Promise<Response> {
-    const { query } = body;
-    return await this.productService.generateMetaData(query);
+    const { id } = body;
+    return await this.productService.generateMetaData(id);
   }
 }

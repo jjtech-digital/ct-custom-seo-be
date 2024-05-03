@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CtClientService } from '../ct/ct.services';
-import { ApiRoot } from '../interfaces/ct.interface';
+import { ApiRoot, OpenAIResponse } from '../interfaces/ct.interface';
 import { getProducts } from '../graphql/product';
 import { Product } from '@commercetools/platform-sdk';
 import { Response } from '../interfaces/ct.interface';
@@ -95,18 +95,36 @@ export class ProductService {
       );
     }
   }
-  async generateMetaData(query: string): Promise<Response> {
-    const data = await this.queryOpenAi(query);
-    return {
-      status: 200,
-      message: 'Query executed successfully',
-      data,
-    };
+  async generateMetaData(productId: string): Promise<OpenAIResponse> {
+    try {
+      const productResponse = await this.getProductById(productId);
+
+      const productName = productResponse.data.masterData.current.name;
+      const categories = productResponse.data.masterData.current.categories;
+
+      const categoryNames = categories
+        .map((category) => category.name)
+        .join(', ');
+      const query = `Product name: "${productName}", Categories: "${categoryNames}"`;
+      const data = await this.queryOpenAi(query);
+
+      return {
+        status: 200,
+        message: 'Query executed successfully',
+        data: data,
+      };
+    } catch (error) {
+      console.error('Error generating metadata:', error);
+      throw new HttpException(
+        'Failed to generate metadata',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
   async queryOpenAi(query: string): Promise<any> {
     const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const prompt = await this.getSavedPrompt();
-    const updatedPrompt = prompt.value.join(', ');
+    const updatedPrompt = prompt.value.join(' ');
     const response = await openAi.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       temperature: 0.5,
@@ -117,7 +135,7 @@ export class ProductService {
       messages: [
         {
           role: 'user',
-          content: `Find the SEO title and description for product with attribute ${query} and ${updatedPrompt}, without any unnecessary special characters at the beginning and end of the text.`,
+          content: `Find the SEO title and description for product with  ${query} and Rules: ${updatedPrompt}`,
         },
       ],
     });
