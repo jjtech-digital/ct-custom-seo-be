@@ -98,8 +98,25 @@ export class RuleService {
     return {
       status: 200,
       message: 'The rule has been created successfully',
-      data:data,
+      data: data,
     };
+  }
+  async getSavedPrompt(accessToken: string) {
+    try {
+      const baseUrl = `${process.env.CTP_API_URL}/${process.env.CTP_PROJECT_KEY}/custom-objects/${process.env.CTP_CUSTOM_OBJ_CONTAINER_NAME}/${process.env.CTP_CUSTOM_OBJ_CONTAINER_KEY}`;
+      const response = await axios.get(baseUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        'Error fetching saved prompt:',
+        error?.response?.data || error?.message,
+      );
+      throw new Error('Failed to fetch saved prompt');
+    }
   }
   async queryOpenAI(prompts: any) {
     const crossover = new CrossOver(this);
