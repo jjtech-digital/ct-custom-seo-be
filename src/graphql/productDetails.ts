@@ -7,10 +7,10 @@ export const getProductDetails = (): string => {
           masterVariant {
             id
           }
-          name(locale: "en")
+          name(locale: "en-GB")
           categories {
-            name(locale: "en")
-            slug(locale: "en")
+            name(locale: "en-GB")
+            slug(locale: "en-GB")
           }
         }
       }
