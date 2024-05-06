@@ -95,7 +95,10 @@ export class ProductService {
       );
     }
   }
-  async generateMetaData(productId: string): Promise<OpenAIResponse> {
+  async generateMetaData(
+    productId: string,
+    accessToken?: string,
+  ): Promise<OpenAIResponse> {
     try {
       const productResponse = await this.getProductById(productId);
 
@@ -106,7 +109,7 @@ export class ProductService {
         .map((category) => category.name)
         .join(', ');
       const query = `Product name: "${productName}", Categories: "${categoryNames}"`;
-      const data = await this.queryOpenAi(query);
+      const data = await this.queryOpenAi(query, accessToken);
 
       return {
         status: 200,
@@ -121,10 +124,20 @@ export class ProductService {
       );
     }
   }
-  async queryOpenAi(query: string): Promise<any> {
+  async queryOpenAi(query: string, accessToken?: string): Promise<any> {
     const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const prompt = await this.getSavedPrompt();
-    const updatedPrompt = prompt.value.join(' ');
+    let updatedPrompt = '';
+    if (accessToken) {
+      const prompt = await this.ruleService.getSavedPrompt(accessToken);
+      updatedPrompt = prompt.value.join(' ');
+    }
+
+    let contentString = `Find the SEO title and description for product with ${query}`;
+
+    // Append rules to the content string if updatedPrompt is not empty
+    if (updatedPrompt) {
+      contentString += ` and Rules: ${updatedPrompt}`;
+    }
     const response = await openAi.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       temperature: 0.5,
@@ -135,28 +148,10 @@ export class ProductService {
       messages: [
         {
           role: 'user',
-          content: `Find the SEO title and description for product with  ${query} and Rules: ${updatedPrompt}`,
+          content: contentString,
         },
       ],
     });
     return response;
-  }
-  async getSavedPrompt() {
-    try {
-      const accessToken = await this.ruleService.getToken();
-      const baseUrl = `${process.env.CTP_API_URL}/${process.env.CTP_PROJECT_KEY}/custom-objects/${process.env.CTP_CUSTOM_OBJ_CONTAINER_NAME}/${process.env.CTP_CUSTOM_OBJ_CONTAINER_KEY}`;
-      const response = await axios.get(baseUrl, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error(
-        'Error fetching saved prompt:',
-        error?.response?.data || error?.message,
-      );
-      throw new Error('Failed to fetch saved prompt');
-    }
   }
 }

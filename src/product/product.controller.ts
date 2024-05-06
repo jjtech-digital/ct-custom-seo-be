@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Response } from 'src/interfaces/ct.interface';
 import { QueryMetaDataDto } from './dto/product.dto';
@@ -23,7 +31,8 @@ export class ProductController {
   @Post('/generate-meta-data')
   @HttpCode(200)
   async getMetaData(@Body() body: QueryMetaDataDto): Promise<Response> {
-    const { id } = body;
-    return await this.productService.generateMetaData(id);
+    const { id, token } = body;
+    const accessToken = token?.replace('Bearer ', '');
+    return await this.productService.generateMetaData(id, accessToken);
   }
 }
