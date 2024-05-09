@@ -67,7 +67,7 @@ export class ProductService {
           body: {
             query: getProductDetails(),
             variables: {
-              id,
+              id
             },
           },
         })

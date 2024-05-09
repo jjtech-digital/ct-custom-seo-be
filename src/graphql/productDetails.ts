@@ -4,8 +4,6 @@ export const getProductDetails = (): string => {
     product(id: $id) {
       masterData {
         current {
-          id
-          key
           masterVariant {
             id
           }
