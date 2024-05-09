@@ -2,7 +2,6 @@ export type { ByProjectKeyRequestBuilder as ApiRoot } from '@commercetools/platf
 export type { ByProjectKeyRequestBuilder as ImportApiRoot } from '@commercetools/importapi-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
 
 export interface Response {
-  
   status?: number;
   message?: string;
   data?: any;
@@ -13,5 +12,6 @@ export interface Response {
 export interface OpenAIResponse {
   status?: number;
   message?: string;
-  data?: any; 
+  data?: any;
+  error?: any;
 }
