@@ -4,14 +4,19 @@ export const getProductDetails = (): string => {
     product(id: $id) {
       masterData {
         current {
+          id
+          key
           masterVariant {
             id
           }
           name(locale: "en-GB")
+          description(locale: "en-GB")
           categories {
             name(locale: "en-GB")
             slug(locale: "en-GB")
           }
+          metaTitle
+          metaDescription
         }
       }
       skus
