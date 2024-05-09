@@ -67,7 +67,7 @@ export class ProductService {
           body: {
             query: getProductDetails(),
             variables: {
-              id
+              id,
             },
           },
         })
@@ -118,10 +118,11 @@ export class ProductService {
       };
     } catch (error) {
       console.error('Error generating metadata:', error);
-      throw new HttpException(
-        'Failed to generate metadata',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return {
+        message: 'Failed to generate metadata',
+        error: error,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      };
     }
   }
   async queryOpenAi(query: string, accessToken?: string): Promise<any> {
