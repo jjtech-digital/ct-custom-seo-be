@@ -6,6 +6,7 @@ export const getProducts = (): string => {
       results{
         id
         key
+        version
         masterData{
           current{
             name(locale:"en")
