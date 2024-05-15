@@ -114,7 +114,7 @@ export class ProductService {
       return {
         status: 200,
         message: 'Query executed successfully',
-        data: data,
+        data: { ...data, productId: productId },
       };
     } catch (error) {
       console.error('Error generating metadata:', error);
@@ -130,12 +130,12 @@ export class ProductService {
     let updatedPrompt = '';
     if (accessToken) {
       const prompt = await this.ruleService.getSavedPrompt(accessToken);
-      const allEmpty = prompt.value.every(p => /^\s*$/.test(p));
-    
-    // If any prompt is non-empty, update updatedPrompt
-    if (!allEmpty) {
-      updatedPrompt = prompt.value.join(' ');
-    }
+      const allEmpty = prompt.value.every((p) => /^\s*$/.test(p));
+
+      // If any prompt is non-empty, update updatedPrompt
+      if (!allEmpty) {
+        updatedPrompt = prompt.value.join(' ');
+      }
     }
 
     let contentString = `Find the SEO title and description for product with ${query}`;
@@ -147,7 +147,7 @@ export class ProductService {
       // Add fallback rules
       contentString += ` and Rules: Include the main keyword in both the title and description. Keep the title concise (50-60 characters) while making it compelling for clicks. Clearly communicate product benefits in the description to engage users and spark curiosity. Limit the description to under 150-160 characters for full visibility in search results.`;
     }
-   
+
     const response = await openAi.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       temperature: 0.5,
