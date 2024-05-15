@@ -9,8 +9,6 @@ import {
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Response } from 'src/interfaces/ct.interface';
-import { QueryMetaDataDto } from './dto/product.dto';
-
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -26,27 +24,36 @@ export class ProductController {
 
   @Post('/get-product-by-id')
   @HttpCode(200)
-  async getProductById(@Body('id') id: string): Promise<Response> {
-    return await this.productService.getProductById(id);
+  async getProductById(
+    @Body('id') id: string,
+    @Body('locale') locale: string,
+  ): Promise<Response> {
+    return await this.productService.getProductById(id, locale);
   }
 
   @Post('/generate-meta-data')
   @HttpCode(200)
-  async getMetaData(@Body() body: QueryMetaDataDto): Promise<Response> {
-    const { id, token } = body;
+  async getMetaData(
+    @Body() body: { id: string; token: string; locale: string },
+  ): Promise<Response> {
+    const { id, token, locale } = body;
     const accessToken = token?.replace('Bearer ', '');
-    return await this.productService.generateMetaData(id, accessToken);
+    return await this.productService.generateMetaData(id, accessToken, locale);
   }
 
   @Post('/bulk-generate-meta-data')
   @HttpCode(200)
   async bulkGenerateMetaData(
-    @Body() body: { ids: string[]; token: string },
+    @Body() body: { ids: string[]; token: string; locale: string },
   ): Promise<Response[]> {
-    const { ids, token } = body;
+    const { ids, token, locale } = body;
     const metaDataPromises = ids.map(async (id) => {
       const accessToken = token?.replace('Bearer ', '');
-      return await this.productService.generateMetaData(id, accessToken);
+      return await this.productService.generateMetaData(
+        id,
+        accessToken,
+        locale,
+      );
     });
     const metaDataResponses = await Promise.all(metaDataPromises);
     return metaDataResponses;

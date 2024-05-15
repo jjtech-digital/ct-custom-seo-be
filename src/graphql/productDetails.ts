@@ -1,20 +1,24 @@
 export const getProductDetails = (): string => {
   return `
-  query ($id: String) {
-    product(id: $id) {
+  query ($id: String, $Locale: Locale, $LocaleProjection:[Locale!]) {
+    product(id: $id, localeProjection: $LocaleProjection) {
+      id
+      key
       masterData {
         current {
           masterVariant {
             id
           }
-          name(locale: "en-GB")
-          description(locale: "en-GB")
-          categories {
-            name(locale: "en-GB")
-            slug(locale: "en-GB")
+          name(locale: $Locale)
+          nameAllLocales {
+            locale
+            value
           }
-          metaTitle
-          metaDescription
+          description(locale: $Locale)
+          categories {
+            name(locale: $Locale)
+            slug(locale: $Locale)
+          }
         }
       }
       skus
