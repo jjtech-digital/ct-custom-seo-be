@@ -59,7 +59,7 @@ export class ProductService {
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
   }
-  async getProductById(id: string): Promise<Response> {
+  async getProductById(productId: string, locale: string): Promise<Response> {
     try {
       const response = await this.apiRoot
         .graphql()
@@ -67,7 +67,8 @@ export class ProductService {
           body: {
             query: getProductDetails(),
             variables: {
-              id,
+              id: productId,
+              Locale: locale,
             },
           },
         })
@@ -77,7 +78,7 @@ export class ProductService {
 
       if (!product) {
         throw new HttpException(
-          `Product with ID ${id} not found.`,
+          `Product with ID ${productId} not found.`,
           HttpStatus.NOT_FOUND,
         );
       }
@@ -97,10 +98,11 @@ export class ProductService {
   }
   async generateMetaData(
     productId: string,
-    accessToken?: string,
+    accessToken: string,
+    locale: string,
   ): Promise<OpenAIResponse> {
     try {
-      const productResponse = await this.getProductById(productId);
+      const productResponse = await this.getProductById(productId, locale);
 
       const productName = productResponse.data.masterData.current.name;
       const categories = productResponse.data.masterData.current.categories;
@@ -109,7 +111,9 @@ export class ProductService {
         .map((category) => category.name)
         .join(', ');
       const query = `Product name: "${productName}", Categories: "${categoryNames}"`;
-      const data = await this.queryOpenAi(query, accessToken);
+
+      const localeQuery = locale ? `, Locale: "${locale}"` : '';
+      const data = await this.queryOpenAi(query + localeQuery, accessToken);
 
       return {
         status: 200,
