@@ -23,16 +23,32 @@ export class ProductController {
   ): Promise<Response> {
     return await this.productService.productDetails(limit, offset);
   }
+
   @Post('/get-product-by-id')
   @HttpCode(200)
   async getProductById(@Body('id') id: string): Promise<Response> {
     return await this.productService.getProductById(id);
   }
+
   @Post('/generate-meta-data')
   @HttpCode(200)
   async getMetaData(@Body() body: QueryMetaDataDto): Promise<Response> {
     const { id, token } = body;
     const accessToken = token?.replace('Bearer ', '');
     return await this.productService.generateMetaData(id, accessToken);
+  }
+
+  @Post('/bulk-generate-meta-data')
+  @HttpCode(200)
+  async bulkGenerateMetaData(
+    @Body() body: { ids: string[]; token: string },
+  ): Promise<Response[]> {
+    const { ids, token } = body;
+    const metaDataPromises = ids.map(async (id) => {
+      const accessToken = token?.replace('Bearer ', '');
+      return await this.productService.generateMetaData(id, accessToken);
+    });
+    const metaDataResponses = await Promise.all(metaDataPromises);
+    return metaDataResponses;
   }
 }
