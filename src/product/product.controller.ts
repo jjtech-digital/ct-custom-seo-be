@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Query,
+  Headers
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Response } from 'src/interfaces/ct.interface';
@@ -40,7 +41,30 @@ export class ProductController {
     const accessToken = token?.replace('Bearer ', '');
     return await this.productService.generateMetaData(id, accessToken, locale);
   }
-
+  @Post('/update-seo-meta/:productId')
+  @HttpCode(200)
+  async updateProductSeoMeta(
+    @Param('productId') productId: string,
+    @Body()
+    body: {
+      metaTitle: string;
+      metaDescription: string;
+      version: number;
+      dataLocale: string;
+    },
+    @Headers('authorization') authorization: string,
+  ): Promise<Response> {
+    const {  metaTitle, metaDescription, version, dataLocale } = body;
+    const accessToken = authorization?.replace('Bearer ', '');
+    return await this.productService.updateProductSeoMeta(
+      productId,
+      metaTitle,
+      metaDescription,
+      version,
+      dataLocale,
+      accessToken,
+    );
+  }
   @Post('/bulk-generate-meta-data')
   @HttpCode(200)
   async bulkGenerateMetaData(
