@@ -47,7 +47,6 @@ export class ProductController {
     @Param('productId') productId: string,
     @Body()
     body: {
-      token: string;
       metaTitle: string;
       metaDescription: string;
       version: number;
