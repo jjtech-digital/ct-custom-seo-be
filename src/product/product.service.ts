@@ -96,6 +96,7 @@ export class ProductService {
       );
     }
   }
+
   async generateMetaData(
     productId: string,
     accessToken: string,
@@ -127,6 +128,56 @@ export class ProductService {
         error: error,
         status: HttpStatus.INTERNAL_SERVER_ERROR,
       };
+    }
+  }
+  async updateProductSeoMeta(
+    productId: string,
+    metaTitle: string,
+    metaDescription: string,
+    version: number,
+    dataLocale: string,
+    accessToken: string,
+  ): Promise<Response> {
+    const apiUrl = `https://api.australia-southeast1.gcp.commercetools.com/jj-seo-app/products/${productId}`;
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    };
+
+    const data = {
+      version: version,
+      actions: [
+        {
+          action: 'setMetaTitle',
+          metaTitle: {
+            [dataLocale]: metaTitle,
+          },
+          staged: false,
+        },
+        {
+          action: 'setMetaDescription',
+          metaDescription: {
+            [dataLocale]: metaDescription,
+          },
+          staged: false,
+        },
+      ],
+    };
+
+    try {
+      const response = await axios.post(apiUrl, data, { headers });
+      console.log('Product SEO meta updated successfully.');
+      return {
+        status: 200,
+        message: 'Product SEO meta updated successfully.',
+        data: response.data,
+      };
+    } catch (error) {
+      console.error('Error updating product SEO meta:', error);
+      throw new HttpException(
+        'Failed to update product SEO meta',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
   async queryOpenAi(query: string, accessToken?: string): Promise<any> {
