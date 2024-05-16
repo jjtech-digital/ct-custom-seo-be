@@ -24,7 +24,7 @@ export class RuleController {
   @HttpCode(201)
   async getRuleDetails(@Body() body): Promise<Response> {
     const { rules } = body;
-    return await this.RuleService.getRule(rules);
+    return await this.RuleService.createRule(rules);
   }
 
   @Get('/saved-rules')
