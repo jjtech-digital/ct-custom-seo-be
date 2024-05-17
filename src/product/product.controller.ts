@@ -6,7 +6,7 @@ import {
   Param,
   Post,
   Query,
-  Headers
+  Headers,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Response } from 'src/interfaces/ct.interface';
@@ -54,7 +54,7 @@ export class ProductController {
     },
     @Headers('authorization') authorization: string,
   ): Promise<Response> {
-    const {  metaTitle, metaDescription, version, dataLocale } = body;
+    const { metaTitle, metaDescription, version, dataLocale } = body;
     const accessToken = authorization?.replace('Bearer ', '');
     return await this.productService.updateProductSeoMeta(
       productId,
@@ -81,5 +81,27 @@ export class ProductController {
     });
     const metaDataResponses = await Promise.all(metaDataPromises);
     return metaDataResponses;
+  }
+
+  @Post('/bulk-update-seo-meta')
+  @HttpCode(200)
+  async applyBulkProductSeoMeta(
+    @Body() body: { products: any[]; token: string },
+  ): Promise<Response[]> {
+    const { products, token } = body;
+    const accessToken = token?.replace('Bearer ', '');
+    const applyBulkPromises = products.map(async (product) => {
+      return await this.productService.updateProductSeoMeta(
+        product.productId,
+        product.metaTitle,
+        product.metaDescription,
+        product.version,
+        product.dataLocale,
+        accessToken,
+      );
+    });
+    const applyBulkResponses = await Promise.all(applyBulkPromises);
+
+    return applyBulkResponses;
   }
 }
