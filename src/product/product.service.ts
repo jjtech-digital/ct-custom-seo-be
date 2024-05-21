@@ -101,6 +101,7 @@ export class ProductService {
     productId: string,
     accessToken: string,
     locale: string,
+    openAiKey: string,
   ): Promise<OpenAIResponse> {
     try {
       const productResponse = await this.getProductById(productId, locale);
@@ -114,20 +115,18 @@ export class ProductService {
       const query = `Product name: "${productName}", Categories: "${categoryNames}"`;
 
       const localeQuery = locale ? `, Locale: "${locale}"` : '';
-      const data = await this.queryOpenAi(query + localeQuery, accessToken);
+      const data = await this.queryOpenAi(
+        query + localeQuery,
+        accessToken,
+        openAiKey,
+      );
 
       return {
-        status: 200,
-        message: 'Query executed successfully',
         data: { ...data, productId: productId },
       };
     } catch (error) {
       console.error('Error generating metadata:', error);
-      return {
-        message: 'Failed to generate metadata',
-        error: error,
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-      };
+      return error;
     }
   }
   async updateProductSeoMeta(
@@ -180,8 +179,12 @@ export class ProductService {
       );
     }
   }
-  async queryOpenAi(query: string, accessToken?: string): Promise<any> {
-    const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  async queryOpenAi(
+    query: string,
+    accessToken?: string,
+    openAiKey?: string,
+  ): Promise<any> {
+    const openAi = new OpenAI({ apiKey: openAiKey });
     let updatedPrompt = '';
     if (accessToken) {
       const prompt = await this.ruleService.getSavedPrompt(accessToken);
@@ -202,21 +205,24 @@ export class ProductService {
       // Add fallback rules
       contentString += ` and Rules: Include the main keyword in both the title and description. Keep the title concise (50-60 characters) while making it compelling for clicks. Clearly communicate product benefits in the description to engage users and spark curiosity. Limit the description to under 150-160 characters for full visibility in search results.`;
     }
-
-    const response = await openAi.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
-      temperature: 0.5,
-      max_tokens: 3500,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
-      messages: [
-        {
-          role: 'user',
-          content: contentString,
-        },
-      ],
-    });
-    return response;
+    try {
+      const response = await openAi.chat.completions.create({
+        model: 'gpt-4-turbo-preview',
+        temperature: 0.5,
+        max_tokens: 3500,
+        top_p: 1.0,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
+        messages: [
+          {
+            role: 'user',
+            content: contentString,
+          },
+        ],
+      });
+      return response;
+    } catch (error) {
+      return error;
+    }
   }
 }

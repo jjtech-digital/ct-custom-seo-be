@@ -6,6 +6,7 @@ import { ProductModule } from './product/product.module';
 import { CtModule } from './ct/ct.module';
 import { ConfigModule } from '@nestjs/config';
 import { RuleModule } from './rule/rule.module';
+import { AiKeyModule } from './aiKey/aiKey.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,7 +15,8 @@ import { RuleModule } from './rule/rule.module';
     HttpModule,
     ProductModule,
     CtModule,
-    RuleModule
+    RuleModule,
+    AiKeyModule
   ],
 
   controllers: [AppController],
