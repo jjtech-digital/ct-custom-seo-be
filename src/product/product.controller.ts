@@ -35,11 +35,11 @@ export class ProductController {
   @Post('/generate-meta-data')
   @HttpCode(200)
   async getMetaData(
-    @Body() body: { id: string; token: string; locale: string },
+    @Body() body: { id: string; token: string; locale: string,openAiKey: string },
   ): Promise<Response> {
-    const { id, token, locale } = body;
+    const { id, token, locale,openAiKey } = body;
     const accessToken = token?.replace('Bearer ', '');
-    return await this.productService.generateMetaData(id, accessToken, locale);
+    return await this.productService.generateMetaData(id, accessToken, locale, openAiKey);
   }
   @Post('/update-seo-meta/:productId')
   @HttpCode(200)
@@ -68,15 +68,16 @@ export class ProductController {
   @Post('/bulk-generate-meta-data')
   @HttpCode(200)
   async bulkGenerateMetaData(
-    @Body() body: { ids: string[]; token: string; locale: string },
+    @Body() body: { ids: string[]; token: string; locale: string,openAiKey: string  },
   ): Promise<Response[]> {
-    const { ids, token, locale } = body;
+    const { ids, token, locale,openAiKey } = body;
     const metaDataPromises = ids.map(async (id) => {
       const accessToken = token?.replace('Bearer ', '');
       return await this.productService.generateMetaData(
         id,
         accessToken,
         locale,
+        openAiKey,
       );
     });
     const metaDataResponses = await Promise.all(metaDataPromises);
