@@ -1,31 +1,37 @@
 export const getProducts = (): string => {
-  return `query($limit: Int, $offset: Int){
-    products(limit: $limit, offset: $offset){
+  return `query ($limit: Int, $offset: Int, $Locale: Locale, $LocaleProjection: [Locale!]) {
+    products(limit: $limit, offset: $offset, localeProjection: $LocaleProjection) {
       total
       offset
-      results{
+      results {
         id
         key
         version
-        masterData{
-          current{
-            name(locale:"en")
-            nameAllLocales{
+        masterData {
+          current {
+            name(locale: $Locale)
+            nameAllLocales {
               locale
               value
             }
-            description(locale: "en")
             categories {
-              name(locale: "en")
-              slug(locale: "en")
+              name(locale: $Locale)
+              slug(locale: $Locale)
             }
-            metaTitle
-            metaDescription
+            metaTitle(locale: $Locale)
+            metaDescription(locale: $Locale)
+            metaTitleAllLocales {
+              locale
+              value
+            }
+            metaDescriptionAllLocales {
+              locale
+              value
+            }
           }
         }
-        
       }
-      
     }
-  }`;
+  }
+  `;
 };
