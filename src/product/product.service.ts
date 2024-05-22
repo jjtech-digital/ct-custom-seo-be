@@ -19,7 +19,11 @@ export class ProductService {
       ctClientService.ctpClient,
     );
   }
-  async productDetails(limit: number, offset: number,locale: string): Promise<Response> {
+  async productDetails(
+    limit: number,
+    offset: number,
+    locale: string,
+  ): Promise<Response> {
     const totalProduct = (await this.apiRoot.products().get().execute()).body
       .total;
     const promise = [];
@@ -36,7 +40,7 @@ export class ProductService {
               variables: {
                 limit: Number(limit),
                 offset: Number(offset),
-                Locale: locale
+                Locale: locale,
               },
             },
           })
@@ -60,7 +64,7 @@ export class ProductService {
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
   }
-  async getProductById(productId: string, locale: string): Promise<Response> {
+  async getProductById(productId: string, locale?: string): Promise<Response> {
     try {
       const response = await this.apiRoot
         .graphql()
@@ -138,34 +142,55 @@ export class ProductService {
     dataLocale: string,
     accessToken: string,
   ): Promise<Response> {
+    const productResponse = await this.getProductById(productId);
+
+    const existingMetaTitles =
+      productResponse?.data?.masterData?.current?.metaTitleAllLocales;
+    const existingMetaDescriptions =
+      productResponse?.data?.masterData?.current?.metaDescriptionAllLocales;
+
+    const metaTitleObj = {};
+    for (const item of existingMetaTitles) {
+      if (item.locale !== dataLocale) {
+        metaTitleObj[item.locale] = item.value;
+      }
+    }
+    // Add the new metaTitle for dataLocale
+    metaTitleObj[dataLocale] = metaTitle;
+
+    const metaDescriptionObj = {};
+    for (const item of existingMetaDescriptions) {
+      if (item.locale !== dataLocale) {
+        metaDescriptionObj[item.locale] = item.value;
+      }
+    }
+    // Add the new metaDescription for dataLocale
+    metaDescriptionObj[dataLocale] = metaDescription;
+
     const apiUrl = `https://api.australia-southeast1.gcp.commercetools.com/jj-seo-app/products/${productId}`;
     const headers = {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     };
 
-    const data = {
+    const payload = {
       version: version,
       actions: [
         {
           action: 'setMetaTitle',
-          metaTitle: {
-            [dataLocale]: metaTitle,
-          },
+          metaTitle: metaTitleObj,
           staged: false,
         },
         {
           action: 'setMetaDescription',
-          metaDescription: {
-            [dataLocale]: metaDescription,
-          },
+          metaDescription: metaDescriptionObj,
           staged: false,
         },
       ],
     };
 
     try {
-      const response = await axios.post(apiUrl, data, { headers });
+      const response = await axios.post(apiUrl, payload, { headers });
       console.log('Product SEO meta updated successfully.');
       return {
         status: 200,
@@ -173,7 +198,10 @@ export class ProductService {
         data: response.data,
       };
     } catch (error) {
-      console.error('Error updating product SEO meta:', error);
+      console.error(
+        'Error updating product SEO meta:',
+        error
+      );
       throw new HttpException(
         'Failed to update product SEO meta',
         HttpStatus.INTERNAL_SERVER_ERROR,

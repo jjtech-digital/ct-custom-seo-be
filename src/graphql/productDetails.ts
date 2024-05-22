@@ -14,6 +14,16 @@ export const getProductDetails = (): string => {
             locale
             value
           }
+          metaTitle(locale: $Locale)
+          metaDescription(locale: $Locale)
+          metaTitleAllLocales {
+            locale
+            value
+          }
+          metaDescriptionAllLocales {
+            locale
+            value
+          }
           description(locale: $Locale)
           categories {
             name(locale: $Locale)
