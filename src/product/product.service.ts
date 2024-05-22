@@ -19,7 +19,7 @@ export class ProductService {
       ctClientService.ctpClient,
     );
   }
-  async productDetails(limit: number, offset: number): Promise<Response> {
+  async productDetails(limit: number, offset: number,locale: string): Promise<Response> {
     const totalProduct = (await this.apiRoot.products().get().execute()).body
       .total;
     const promise = [];
@@ -36,6 +36,7 @@ export class ProductService {
               variables: {
                 limit: Number(limit),
                 offset: Number(offset),
+                Locale: locale
               },
             },
           })
