@@ -101,6 +101,41 @@ export class ProductService {
       );
     }
   }
+  async searchProduct(
+    query: string,
+    limit: number,
+    offset: number,
+    dataLocale:string
+  ): Promise<Response> {
+    try {
+      const response = await this.apiRoot
+        .productProjections()
+        .search()
+        .get({
+          queryArgs: {
+            [`text.${dataLocale}`]: query,
+            limit: limit,
+            offset: offset,
+          },
+        })
+        .execute();
+
+      console.log(response);
+      const products = response.body;
+
+      return {
+        status: 200,
+        message: 'Products retrieved successfully',
+        data: products,
+      };
+    } catch (error) {
+      console.error('Error searching for products:', error);
+      throw new HttpException(
+        'Failed to search products',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async generateMetaData(
     productId: string,
@@ -198,10 +233,7 @@ export class ProductService {
         data: response.data,
       };
     } catch (error) {
-      console.error(
-        'Error updating product SEO meta:',
-        error
-      );
+      console.error('Error updating product SEO meta:', error);
       throw new HttpException(
         'Failed to update product SEO meta',
         HttpStatus.INTERNAL_SERVER_ERROR,

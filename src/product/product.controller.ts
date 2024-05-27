@@ -123,4 +123,19 @@ export class ProductController {
 
     return applyBulkResponses;
   }
+  @Get('/search')
+  @HttpCode(200)
+  async searchProducts(
+    @Query('query') query: string,
+    @Query('limit') limit: number,
+    @Query('offset') offset: number,
+    @Query('locale') locale: string,
+  ): Promise<Response> {
+    return await this.productService.searchProduct(
+      query,
+      limit,
+      offset,
+      locale,
+    );
+  }
 }
