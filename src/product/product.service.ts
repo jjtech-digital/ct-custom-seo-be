@@ -180,9 +180,9 @@ export class ProductService {
     const productResponse = await this.getProductById(productId);
 
     const existingMetaTitles =
-      productResponse?.data?.masterData?.current?.metaTitleAllLocales;
+      productResponse?.data?.masterData?.current?.metaTitleAllLocales || [];
     const existingMetaDescriptions =
-      productResponse?.data?.masterData?.current?.metaDescriptionAllLocales;
+      productResponse?.data?.masterData?.current?.metaDescriptionAllLocales || [];
 
     const metaTitleObj = {};
     for (const item of existingMetaTitles) {
